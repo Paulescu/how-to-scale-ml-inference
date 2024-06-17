@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["Paulescu <plabartabajo@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+faker = "^25.8.0"
+fire = "^0.6.0"
+loguru = "^0.7.2"
+quixstreams = "^2.5.1"
+pydantic-settings = "^2.3.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
