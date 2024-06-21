@@ -8,4 +8,5 @@ run: build
 	docker run \
 		--network=redpanda_network \
 		--env KAFKA_BROKER_ADDRESS=redpanda-0:9092 \
+		-p 8000:8000 \
 		latency-monitor

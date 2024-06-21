@@ -18,7 +18,9 @@ COPY pyproject.toml poetry.lock /app/
 RUN poetry install
 
 # copy all the source code into the container
-# COPY src/*.py /app/src/
 COPY . /app/
+
+# expose the port where we push the Prometheus metrics
+EXPOSE 8000
 
 CMD ["poetry", "run", "python", "src/main.py"]

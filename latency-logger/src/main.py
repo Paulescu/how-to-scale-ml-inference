@@ -3,6 +3,8 @@ from quixstreams import Application
 import json
 import time
 
+from prometheus_client import start_http_server, Summary
+
 def run(
     kafka_topic: str,
     kafka_broker_address: str,
@@ -17,6 +19,10 @@ def run(
     )
 
     # buffer = []
+    start_http_server(8000)
+    s = Summary('ml_pipeline_latency_ms',
+                'Milliseconds elapsed between the transaction timestamp and the \
+                 timestamp when the prediction is ready to be served')
 
     # Create a consumer and start a polling loop
     with app.get_consumer() as consumer:
@@ -44,6 +50,7 @@ def run(
                 current_timestamps_ms = int(time.time() * 1000)
                 latency_ms = current_timestamps_ms - msg['transaction_timestamp_ms']
 
+                s.observe(latency_ms)
                 # breakpoint()
 
                 logger.debug(f'Latency: {latency_ms} ms')

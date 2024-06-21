@@ -39,3 +39,5 @@ services:
     environment:
       KAFKA_BROKER_ADDRESS: redpanda-0:9092
     restart: always
+    ports:
+      - 8000:8000
