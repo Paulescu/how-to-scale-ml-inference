@@ -12,6 +12,7 @@ fire = "^0.6.0"
 loguru = "^0.7.2"
 quixstreams = "^2.5.1"
 pydantic-settings = "^2.3.3"
+streamlit = "^1.36.0"
 
 
 [build-system]

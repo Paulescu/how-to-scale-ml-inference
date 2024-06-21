@@ -2,8 +2,15 @@ import time
 from faker import Faker
 from loguru import logger
 from quixstreams import Application
+# from threading import Lock
 
 from src.transaction import Transaction
+from src.config import config
+
+shared_data = {'n_transactions_per_second': 100}
+# n_transactions_per_second = 100
+# shared_data_lock = Lock()
+
 
 def generate_transaction(fake) -> Transaction:
     """
@@ -14,18 +21,20 @@ def generate_transaction(fake) -> Transaction:
         credit_card=fake.credit_card_number(),
         card_holder=fake.name(),
         expiration_date=fake.future_date().strftime("%Y-%m-%d %H:%M:%S"),
-        amount=fake.pyfloat(left_digits=4, right_digits=2, positive=True)
+        amount=fake.pyfloat(left_digits=4, right_digits=2, positive=True),
+        timestamp_ms=int(time.time() * 1000),
     )
 
-def run(
-    n_transactions_per_second: int,
-    kafka_broker_address: str,
-    kafka_topic: str,
-):
-    logger.debug(f'Starting transaction generator with {n_transactions_per_second=}')
-    
-    app = Application(broker_address=kafka_broker_address)
-    topic = app.topic(name=kafka_topic, value_serializer='json')
+def produce_transactions():
+    """
+    Produce transactions to a Kafka topic at a rate given by 
+    shared_data['n_transactions_per_second']
+
+    This variable shared_data is shared between the Streamlit frontend (main process)
+    and the producer (background thread) using a global variable.
+    """    
+    app = Application(broker_address=config.kafka_broker_address)
+    topic = app.topic(name=config.kafka_topic, value_serializer='json')
 
     # we will use Faker to generate fake data    
     fake = Faker()
@@ -33,7 +42,9 @@ def run(
     with app.get_producer() as producer:
     
         while True:
-            transactions = [generate_transaction(fake) for _ in range(n_transactions_per_second)]
+
+            transactions = [generate_transaction(fake)
+                            for _ in range(shared_data['n_transactions_per_second'])]
 
             for transaction in transactions:
                 
@@ -50,18 +61,13 @@ def run(
                     key=message.key,
                 )
 
-            logger.debug(f"Produced {len(transactions)} transactions to Kafka topic {kafka_topic}")
+            logger.debug(f"Produced {len(transactions)} transactions to {config.kafka_topic} topic")
 
             time.sleep(1)
 
 if __name__ == "__main__":
 
-    from src.config import config
     try:
-        run(
-            n_transactions_per_second=config.n_transactions_per_second,
-            kafka_broker_address=config.kafka_broker_address,
-            kafka_topic=config.kafka_topic,
-        )
+        produce_transactions()
     except KeyboardInterrupt:
         logger.info('Shutting down transaction generator...')

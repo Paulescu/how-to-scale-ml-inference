@@ -21,4 +21,7 @@ RUN poetry install
 # COPY src/*.py /app/src/
 COPY . /app/
 
-CMD ["poetry", "run", "python", "src/main.py"]
+# expose the port that Streamlit runs on
+EXPOSE 8501
+
+CMD ["poetry", "run", "streamlit", "run", "src/frontend.py"]
