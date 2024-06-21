@@ -8,4 +8,4 @@ class Transaction(BaseModel):
     card_holder: str
     expiration_date: str
     amount: float
-    timestamp_ms: int
+    transaction_timestamp_ms: int

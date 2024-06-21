@@ -22,7 +22,7 @@ def generate_transaction(fake) -> Transaction:
         card_holder=fake.name(),
         expiration_date=fake.future_date().strftime("%Y-%m-%d %H:%M:%S"),
         amount=fake.pyfloat(left_digits=4, right_digits=2, positive=True),
-        timestamp_ms=int(time.time() * 1000),
+        transaction_timestamp_ms=int(time.time() * 1000),
     )
 
 def produce_transactions():
