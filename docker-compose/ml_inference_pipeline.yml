@@ -1,0 +1,41 @@
+version: "3.7"
+name: ml-inference-pipeline
+
+networks:
+  redpanda_network:
+    external: true
+
+services:  
+  transaction_generator:
+    # container_name: trade_producer
+    build:
+      context: ../transaction-generator
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092
+      N_TRANSACTIONS_PER_SECOND: 0
+    restart: always
+    ports:
+      - 8501:8501
+    
+  fraud-detector:
+    # container_name: trade_to_ohlc
+    build:
+      context: ../fraud-detector
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092
+      ML_MODEL_LATENCY_MS: 10
+    restart: always
+
+  latency-logger:
+    # container_name: kafka_to_feature_store
+    build:
+      context: ../latency-logger
+    networks:
+      - redpanda_network
+    environment:
+      KAFKA_BROKER_ADDRESS: redpanda-0:9092
+    restart: always
