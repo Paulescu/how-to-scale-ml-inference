@@ -7,7 +7,7 @@ from quixstreams import Application
 from src.transaction import Transaction
 from src.config import config
 
-shared_data = {'n_transactions_per_second': 100}
+shared_data = {'n_transactions_per_second': config.n_transactions_per_second}
 # n_transactions_per_second = 100
 # shared_data_lock = Lock()
 
